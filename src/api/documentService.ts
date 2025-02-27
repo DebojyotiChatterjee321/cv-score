@@ -58,9 +58,16 @@ export const computeCVScore = async (
       throw new Error(data.message || "Unknown error occurred");
     }
     
-    return data.result;
+    // Transform backend response to our frontend model
+    return {
+      score: data.cv_score,
+      matchedSkills: data.matching_keywords,
+      missingSkills: data.missing_keywords,
+      recommendations: [data.summary], // Use summary as recommendation
+    };
   } catch (error) {
     console.error("Error computing CV score:", error);
     throw error;
   }
 };
+

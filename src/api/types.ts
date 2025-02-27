@@ -10,7 +10,11 @@ export type CVScoreRequest = {
 };
 
 export type CVScoreResponse = {
-  result: MatchResult;
+  cv_score: number;
+  summary: string;
+  matching_keywords: string[];
+  missing_keywords: string[];
   success: boolean;
   message?: string;
 };
+
