@@ -70,4 +70,3 @@ export const computeCVScore = async (
     throw error;
   }
 };
-
