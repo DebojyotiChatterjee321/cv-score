@@ -10,7 +10,7 @@ const FileUpload = ({
   onUpload,
 }: {
   type: "cv" | "jd";
-  onUpload: (content: string) => void;
+  onUpload: (content: string, file: File) => void;
 }) => {
   const [state, setState] = useState<UploadState>({
     isDragging: false,
@@ -45,7 +45,7 @@ const FileUpload = ({
     reader.onload = (e) => {
       const content = e.target?.result as string;
       setState(prev => ({ ...prev, file, content }));
-      onUpload(content);
+      onUpload(content, file);
     };
     reader.readAsText(file);
   };

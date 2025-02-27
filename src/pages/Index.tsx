@@ -5,6 +5,7 @@ import TextEditor from "@/components/TextEditor";
 import MatchScore from "@/components/MatchScore";
 import { type Document, type MatchResult } from "@/types";
 import { toast } from "sonner";
+import { computeCVScore } from "@/api/documentService";
 
 // Main page component orchestrating the CV-JD comparison flow
 // Manages document states and triggers comparisons
@@ -17,7 +18,16 @@ const Index = () => {
     jd: null,
   });
 
+  const [files, setFiles] = useState<{
+    cv: File | null;
+    jd: File | null;
+  }>({
+    cv: null,
+    jd: null,
+  });
+
   const [result, setResult] = useState<MatchResult | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleDocumentUpdate = (type: "cv" | "jd", content: string) => {
     setDocuments((prev) => ({
@@ -30,23 +40,40 @@ const Index = () => {
     }));
   };
 
-  // Temporary mock comparison function
-  // Will be replaced with actual API call to backend
-  const compareDocuments = () => {
+  const handleFileUpload = (type: "cv" | "jd", content: string, file: File) => {
+    setFiles(prev => ({
+      ...prev,
+      [type]: file
+    }));
+    
+    handleDocumentUpdate(type, content);
+  };
+
+  // Send documents to backend for comparison
+  const compareDocuments = async () => {
     if (!documents.cv || !documents.jd) {
       toast.error("Please provide both CV and JD");
       return;
     }
 
-    // Mock result for demonstration
-    setResult({
-      score: 75,
-      matchedSkills: ["React", "TypeScript", "Node.js", "API Development"],
-      missingSkills: ["Python", "AWS"],
-      recommendations: ["Consider learning Python", "Get AWS certification"],
-    });
-
-    toast.success("Analysis complete!");
+    setLoading(true);
+    
+    try {
+      const result = await computeCVScore(
+        documents.cv,
+        documents.jd,
+        files.cv,
+        files.jd
+      );
+      
+      setResult(result);
+      toast.success("Analysis complete!");
+    } catch (error) {
+      console.error("Error comparing documents:", error);
+      toast.error("Failed to analyze documents. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -67,7 +94,7 @@ const Index = () => {
               <h2 className="text-xl font-semibold mb-4">Upload CV</h2>
               <FileUpload
                 type="cv"
-                onUpload={(content) => handleDocumentUpdate("cv", content)}
+                onUpload={(content, file) => handleFileUpload("cv", content, file)}
               />
               <div className="mt-6">
                 <p className="text-sm text-gray-600 mb-2">Or enter manually:</p>
@@ -84,7 +111,7 @@ const Index = () => {
               <h2 className="text-xl font-semibold mb-4">Upload Job Description</h2>
               <FileUpload
                 type="jd"
-                onUpload={(content) => handleDocumentUpdate("jd", content)}
+                onUpload={(content, file) => handleFileUpload("jd", content, file)}
               />
               <div className="mt-6">
                 <p className="text-sm text-gray-600 mb-2">Or enter manually:</p>
@@ -100,11 +127,13 @@ const Index = () => {
         <div className="flex justify-center mb-12">
           <button
             onClick={compareDocuments}
-            className="px-8 py-3 bg-primary text-white rounded-full font-medium
-              hover:bg-primary/90 transition-colors duration-200 animate-fade-in"
+            disabled={loading}
+            className={`px-8 py-3 bg-primary text-white rounded-full font-medium
+              transition-colors duration-200 animate-fade-in
+              ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-primary/90'}`}
             style={{ animationDelay: "0.4s" }}
           >
-            Compare Documents
+            {loading ? "Analyzing..." : "Compare Documents"}
           </button>
         </div>
 
