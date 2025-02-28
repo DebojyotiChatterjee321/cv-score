@@ -29,24 +29,25 @@ const Index = () => {
   const [result, setResult] = useState<MatchResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleDocumentUpdate = (type: "cv" | "jd", content: string) => {
+  const handleDocumentUpdate = (type: "cv" | "jd", dataType: "file" | "text", content: string) => {
     setDocuments((prev) => ({
       ...prev,
       [type]: {
         content,
         type,
+        dataType,
         format: "text",
       },
     }));
   };
 
-  const handleFileUpload = (type: "cv" | "jd", content: string, file: File) => {
+  const handleFileUpload = (type: "cv" | "jd", dataType: "file", content: string, file: File) => {
     setFiles(prev => ({
       ...prev,
       [type]: file
     }));
-    
-    handleDocumentUpdate(type, content);
+
+    handleDocumentUpdate(type, dataType, content);
   };
 
   // Send documents to backend for comparison
@@ -57,7 +58,7 @@ const Index = () => {
     }
 
     setLoading(true);
-    
+
     try {
       const result = await computeCVScore(
         documents.cv,
@@ -65,7 +66,7 @@ const Index = () => {
         files.cv,
         files.jd
       );
-      
+
       setResult(result);
       toast.success("Analysis complete!");
     } catch (error) {
@@ -94,13 +95,15 @@ const Index = () => {
               <h2 className="text-xl font-semibold mb-4">Upload CV</h2>
               <FileUpload
                 type="cv"
-                onUpload={(content, file) => handleFileUpload("cv", content, file)}
+                dataType="file"
+                onUpload={(content, file) => handleFileUpload("cv", "file", content, file)}
               />
               <div className="mt-6">
                 <p className="text-sm text-gray-600 mb-2">Or enter manually:</p>
                 <TextEditor
                   type="cv"
-                  onChange={(content) => handleDocumentUpdate("cv", content)}
+                  dataType="text"
+                  onChange={(content) => handleDocumentUpdate("cv", "text", content)}
                 />
               </div>
             </div>
@@ -111,13 +114,15 @@ const Index = () => {
               <h2 className="text-xl font-semibold mb-4">Upload Job Description</h2>
               <FileUpload
                 type="jd"
-                onUpload={(content, file) => handleFileUpload("jd", content, file)}
+                dataType="file"
+                onUpload={(content, file) => handleFileUpload("jd", "file", content, file)}
               />
               <div className="mt-6">
                 <p className="text-sm text-gray-600 mb-2">Or enter manually:</p>
                 <TextEditor
                   type="jd"
-                  onChange={(content) => handleDocumentUpdate("jd", content)}
+                  dataType="text"
+                  onChange={(content) => handleDocumentUpdate("jd", "text", content)}
                 />
               </div>
             </div>

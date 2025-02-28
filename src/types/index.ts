@@ -3,6 +3,7 @@
 export type Document = {
   content: string;
   type: "cv" | "jd";
+  dataType: "file"| "text";
   format: "pdf" | "docx" | "text";
   filename?: string;
 };

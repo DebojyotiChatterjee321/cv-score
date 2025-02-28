@@ -5,9 +5,11 @@ import { useState } from "react";
 // Supports basic text formatting and content editing
 const TextEditor = ({
   type,
+  dataType,
   onChange,
 }: {
   type: "cv" | "jd";
+  dataType: "text";
   onChange: (content: string) => void;
 }) => {
   const [content, setContent] = useState("");

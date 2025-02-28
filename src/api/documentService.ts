@@ -23,41 +23,40 @@ export const computeCVScore = async (
   try {
     // Create FormData for multipart request
     const formData = new FormData();
-    
+
     // Add document content
-    formData.append("cv_content", cv.content);
-    formData.append("jd_content", jd.content);
-    
+    if (cv.dataType != "file")
+      formData.append("cv_content", cv.content);
+    if (jd.dataType != "file")
+      formData.append("jd_content", jd.content);
+
     // Add document types
-    formData.append("cv_type", cv.type);
-    formData.append("jd_type", jd.type);
-    
+    // formData.append("cv_type", cv.type);
+    // formData.append("jd_type", jd.type);
+
     // Add files if available
     if (cvFile) {
       formData.append("cv_file", cvFile);
     }
-    
     if (jdFile) {
       formData.append("jd_file", jdFile);
     }
-    
+
     // Make API request
     const response = await fetch(ENDPOINTS.COMPUTE_CV_SCORE, {
       method: "POST",
       body: formData,
     });
-    
+
+
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`API error: ${response.status} - ${errorText}`);
     }
-    
+
+    // Parse response to JSON object
     const data: CVScoreResponse = await response.json();
-    
-    if (!data.success) {
-      throw new Error(data.message || "Unknown error occurred");
-    }
-    
+
     // Transform backend response to our frontend model
     return {
       score: data.cv_score,

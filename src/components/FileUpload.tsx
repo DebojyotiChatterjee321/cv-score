@@ -7,9 +7,11 @@ import { type UploadState } from "@/types";
 // Supports PDF and DOCX files with a modern, animated interface
 const FileUpload = ({
   type,
+  dataType,
   onUpload,
 }: {
   type: "cv" | "jd";
+  dataType: "file";
   onUpload: (content: string, file: File) => void;
 }) => {
   const [state, setState] = useState<UploadState>({

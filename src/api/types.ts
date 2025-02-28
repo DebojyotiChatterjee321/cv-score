@@ -14,7 +14,7 @@ export type CVScoreResponse = {
   summary: string;
   matching_keywords: string[];
   missing_keywords: string[];
-  success: boolean;
-  message?: string;
+  // success: boolean;
+  // message?: string;
 };
 
