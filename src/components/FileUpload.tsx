@@ -78,10 +78,11 @@ const FileUpload = ({
 
   return (
     <div
-      className={`upload-zone rounded-xl p-8 border-2 border-dashed transition-all duration-200 ease-in-out
-        ${state.isDragging ? "border-primary bg-primary/5" : "border-border"}
-        ${state.file ? "bg-secondary/50" : "hover:bg-secondary/50"}
-        ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+      className={`upload-zone rounded-xl p-8 transition-all duration-300 ease-in-out
+        ${state.isDragging ? "shadow-lg scale-[1.02] border-2 border-dashed border-blue-400" : "border border-gray-200"}
+        ${state.file ? "bg-blue-50/50" : "hover:bg-gray-50 hover:shadow-md"}
+        ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}
+        bg-gradient-to-br from-white to-gray-50`}
       onDragEnter={handleDrag}
       onDragLeave={handleDrag}
       onDragOver={handleDrag}
@@ -92,39 +93,37 @@ const FileUpload = ({
         {state.file ? (
           <div className="flex flex-col items-center">
             <div className="relative">
-              <FileText className="w-12 h-12 text-primary" />
+              <div className="p-4 bg-blue-100 rounded-full">
+                <FileText className="w-10 h-10 text-blue-600" />
+              </div>
               <button 
                 onClick={handleRemoveFile}
-                className="absolute -top-2 -right-2 bg-gray-200 hover:bg-gray-300 rounded-full p-1"
+                className="absolute -top-2 -right-2 bg-white hover:bg-gray-100 rounded-full p-1 shadow-md transition-colors duration-200"
                 aria-label="Remove file"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 text-gray-600" />
               </button>
             </div>
-            <p className="text-sm font-medium mt-2">{state.file.name}</p>
+            <p className="text-sm font-medium mt-3 text-gray-900">{state.file.name}</p>
+            <p className="text-xs text-gray-500 mt-1">Click to change file</p>
           </div>
         ) : (
-          <>
-            <Upload className="w-12 h-12 text-muted-foreground" />
-            <div className="text-center">
-              <p className="text-sm font-medium">
+          <div className="flex flex-col items-center space-y-4 py-6">
+            <div className="p-4 bg-blue-50 rounded-full">
+              <Upload className="w-10 h-10 text-blue-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-base font-medium text-gray-900">
                 Drop your {type.toUpperCase()} here
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                or click to browse
+              <p className="text-sm text-gray-500">
+                or click to browse files
               </p>
-              <button
-                type="button"
-                onClick={handleClickUpload}
-                disabled={disabled}
-                className={`mt-4 px-4 py-2 bg-primary text-white rounded-md text-sm font-medium
-                  transition-colors duration-200
-                  ${disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-primary/90'}`}
-              >
-                Upload {type.toUpperCase()}
-              </button>
+              <p className="text-xs text-gray-400 mt-2">
+                Supports PDF, DOCX, DOC
+              </p>
             </div>
-          </>
+          </div>
         )}
       </div>
       <input
