@@ -58,19 +58,22 @@ const Index = () => {
   }, [resetTextEditors]);
 
   const handleDocumentUpdate = (type: "cv" | "jd", dataType: "file" | "text", content: string) => {
+    // Only update input mode if there's content or if we're clearing a previous text input
+    if (content || (dataType === "text" && inputMode[type] === "text")) {
+      setInputMode(prev => ({
+        ...prev,
+        [type]: content ? dataType : null
+      }));
+    }
+
     setDocuments((prev) => ({
       ...prev,
-      [type]: {
+      [type]: content ? {
         content,
         type,
         dataType,
         format: "text",
-      },
-    }));
-
-    setInputMode(prev => ({
-      ...prev,
-      [type]: dataType
+      } : null,
     }));
 
     // If switching to text input mode and there was a file, remove it
@@ -162,7 +165,7 @@ const Index = () => {
                 dataType="file"
                 onUpload={(content, file) => handleFileUpload("cv", "file", content, file)}
                 onRemove={() => handleFileRemove("cv")}
-                disabled={inputMode.cv === "text"}
+                disabled={inputMode.cv === "text" && !!documents.cv?.content}
               />
               <div className="mt-6">
                 <p className="text-sm text-gray-600 mb-2">Or enter manually:</p>
@@ -185,7 +188,7 @@ const Index = () => {
                 dataType="file"
                 onUpload={(content, file) => handleFileUpload("jd", "file", content, file)}
                 onRemove={() => handleFileRemove("jd")}
-                disabled={inputMode.jd === "text"}
+                disabled={inputMode.jd === "text" && !!documents.jd?.content}
               />
               <div className="mt-6">
                 <p className="text-sm text-gray-600 mb-2">Or enter manually:</p>
