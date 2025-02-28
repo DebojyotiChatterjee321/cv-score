@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FileUpload from "@/components/FileUpload";
 import TextEditor from "@/components/TextEditor";
 import MatchScore from "@/components/MatchScore";
@@ -28,6 +28,34 @@ const Index = () => {
 
   const [result, setResult] = useState<MatchResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  
+  // Track input mode for CV and JD (file or text)
+  const [inputMode, setInputMode] = useState<{
+    cv: "file" | "text" | null;
+    jd: "file" | "text" | null;
+  }>({
+    cv: null,
+    jd: null,
+  });
+
+  // Reset flags for text editors
+  const [resetTextEditors, setResetTextEditors] = useState<{
+    cv: boolean;
+    jd: boolean;
+  }>({
+    cv: false,
+    jd: false,
+  });
+
+  // Reset the text editor flags after they've been consumed
+  useEffect(() => {
+    if (resetTextEditors.cv || resetTextEditors.jd) {
+      setResetTextEditors({
+        cv: false,
+        jd: false,
+      });
+    }
+  }, [resetTextEditors]);
 
   const handleDocumentUpdate = (type: "cv" | "jd", dataType: "file" | "text", content: string) => {
     setDocuments((prev) => ({
@@ -39,6 +67,19 @@ const Index = () => {
         format: "text",
       },
     }));
+
+    setInputMode(prev => ({
+      ...prev,
+      [type]: dataType
+    }));
+
+    // If switching to text input mode and there was a file, remove it
+    if (dataType === "text" && files[type]) {
+      setFiles(prev => ({
+        ...prev,
+        [type]: null
+      }));
+    }
   };
 
   const handleFileUpload = (type: "cv" | "jd", dataType: "file", content: string, file: File) => {
@@ -48,6 +89,29 @@ const Index = () => {
     }));
 
     handleDocumentUpdate(type, dataType, content);
+    
+    // Reset any text in the text editor when a file is uploaded
+    setResetTextEditors(prev => ({
+      ...prev,
+      [type]: true
+    }));
+  };
+
+  const handleFileRemove = (type: "cv" | "jd") => {
+    setFiles(prev => ({
+      ...prev,
+      [type]: null
+    }));
+
+    setInputMode(prev => ({
+      ...prev,
+      [type]: null
+    }));
+
+    setDocuments(prev => ({
+      ...prev,
+      [type]: null
+    }));
   };
 
   // Send documents to backend for comparison
@@ -97,6 +161,8 @@ const Index = () => {
                 type="cv"
                 dataType="file"
                 onUpload={(content, file) => handleFileUpload("cv", "file", content, file)}
+                onRemove={() => handleFileRemove("cv")}
+                disabled={inputMode.cv === "text"}
               />
               <div className="mt-6">
                 <p className="text-sm text-gray-600 mb-2">Or enter manually:</p>
@@ -104,6 +170,8 @@ const Index = () => {
                   type="cv"
                   dataType="text"
                   onChange={(content) => handleDocumentUpdate("cv", "text", content)}
+                  disabled={inputMode.cv === "file"}
+                  resetContent={resetTextEditors.cv}
                 />
               </div>
             </div>
@@ -116,6 +184,8 @@ const Index = () => {
                 type="jd"
                 dataType="file"
                 onUpload={(content, file) => handleFileUpload("jd", "file", content, file)}
+                onRemove={() => handleFileRemove("jd")}
+                disabled={inputMode.jd === "text"}
               />
               <div className="mt-6">
                 <p className="text-sm text-gray-600 mb-2">Or enter manually:</p>
@@ -123,6 +193,8 @@ const Index = () => {
                   type="jd"
                   dataType="text"
                   onChange={(content) => handleDocumentUpdate("jd", "text", content)}
+                  disabled={inputMode.jd === "file"}
+                  resetContent={resetTextEditors.jd}
                 />
               </div>
             </div>
