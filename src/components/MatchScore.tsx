@@ -11,11 +11,11 @@ const MatchScore = ({ result }: { result: MatchResult }) => {
       <div className="flex flex-col md:flex-row md:items-center gap-8">
         <div className="w-32 h-32 mx-auto md:mx-0">
           <CircularProgressbar
-            value={result.score}
-            text={`${result.score}%`}
+            value={result.score * 10}
+            text={`${result.score * 10}%`}
             styles={buildStyles({
               textSize: "1.5rem",
-              pathColor: `rgba(22, 163, 74, ${result.score / 100})`,
+              pathColor: `rgba(22, 163, 74, ${result.score / 10})`,
               textColor: "#111827",
               trailColor: "#E5E7EB",
               pathTransition: "stroke-dashoffset 0.5s ease 0s",
